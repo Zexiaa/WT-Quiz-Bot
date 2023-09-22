@@ -1,7 +1,9 @@
 import json
 import random
 import aiohttp
-import os#, io
+import os
+import asyncio
+from threading import Timer
 
 import discord
 from discord.ext import commands
@@ -50,6 +52,51 @@ async def random_tank(ctx):
 
     await ctx.send(msg, embed=embed)
 
+@bot.command(name="guess")
+async def guess_tank(ctx):
+
+    await ctx.typing()
+
+    tank = getRandomTank()
+    answer = tank['Name']
+
+    async with aiohttp.ClientSession() as session:
+        url = tank["Image"]
+
+    embed = discord.Embed(title="Guess that Tank!")
+    embed.set_image(url=url)
+
+    await ctx.send(embed=embed)
+    
+    try:
+        guess = await bot.wait_for('message', timeout=10.0)
+
+        if guess.content in tank['Name']:
+            embed = discord.Embed(title="Guess that Tank!",
+                          description="Score + 1")
+            embed.add_field(name=tank['Name'], 
+                        value=f"{tank['Nation']}\n{tank['Rank']}")
+            embed.add_field(name="Battle Rating",
+                            value=tank['BR'])
+            embed.add_field(name="Class",
+                            value=tank['Type'])
+            return await ctx.send(embed=embed)
+
+    except asyncio.TimeoutError:
+        return await ctx.send(embed=wrong_answer(tank))
+    
+
+def wrong_answer(tank):
+    embed = discord.Embed(title="Guess that Tank!",
+                            description="Time's up!")
+    embed.add_field(name=tank['Name'], 
+                value=f"{tank['Nation']}\n{tank['Rank']}")
+    embed.add_field(name="Battle Rating",
+                    value=tank['BR'])
+    embed.add_field(name="Class",
+                    value=tank['Type'])
+    
+    return embed
 
 def getRandomTank():
     return list[random.randint(0, len(list))]
