@@ -54,13 +54,13 @@ class WikiSpider(scrapy.Spider):
 
         # Get art image if it exists
         # Else get garage image
-        img_link = response.xpath("//a[contains(@href, 'ArtImage')]/@href").getall()
+        img_link = response.xpath("//a[contains(@href, 'ArtImage')]/img/@src").getall()
         
         if len(img_link) == 0:
-            img_link = response.xpath("//a[contains(@href, 'GarageImage')]/@href").get()
-            img_link = response.urljoin("#/media" + img_link)
+            img_link = response.xpath("//a[contains(@href, 'GarageImage')]/img/@src").get()
+            img_link = response.urljoin(img_link)
         else:
-            img_link = response.urljoin("#/media" + img_link[0])
+            img_link = response.urljoin(img_link[0])
 
         yield {
             'Name': vehicle_name,
