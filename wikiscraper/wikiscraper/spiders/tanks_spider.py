@@ -2,7 +2,7 @@ from pathlib import Path
 
 import scrapy
 
-# Run with scrapy wikiTank -o tankList.json
+# Run with scrapy wikiTank -O tankList.json
 class WikiSpider(scrapy.Spider):
     name = "wikiTank"
 
