@@ -1,7 +1,7 @@
 import json
 import random
 import aiohttp
-import os, io
+import os#, io
 
 import discord
 from discord.ext import commands
@@ -30,21 +30,25 @@ async def ping(ctx):
 @bot.command(name="random")
 async def random_tank(ctx):
     
+    await ctx.typing()
+
     tank = getRandomTank()
     msg = ""
 
     async with aiohttp.ClientSession() as session:
         url = tank["Image"]
 
-        async with session.get(url) as resp:
-            img = await resp.read()
-            f = io.BytesIO(img)
+    embed = discord.Embed(title="Random Tank!")
+    embed.add_field(name=tank['Name'], 
+                    value=f"{tank['Nation']}\n{tank['Rank']}")
+    embed.add_field(name="Battle Rating",
+                    value=tank['BR'])
+    embed.add_field(name="Class",
+                    value=tank['Type'])
+    
+    embed.set_image(url=url)
 
-    msg = f"Name: {tank['Name']}\nCountry: {tank['Nation']}\n"
-    msg += f"{tank['Type']}\n"
-    msg += f"{tank['Rank']} BR: {tank['BR']}"
-
-    await ctx.send(f"```{msg}```", file=discord.File(f, url.split("/")[-1]))
+    await ctx.send(msg, embed=embed)
 
 
 def getRandomTank():

@@ -49,8 +49,8 @@ class WikiSpider(scrapy.Spider):
 
         info = response.xpath("//div[@class=$val]", val="general_info_2")
         
-        real_br = info.xpath(".//td").getall()[-2]
-        tank_type = info.xpath(".//div[@class=$val]/div/a/text()", val="general_info_class").get()
+        real_br = info.xpath(".//td/text()").getall()[-2]
+        tank_type = info.xpath(".//div[@class=$val]/div/a/text()", val="general_info_class").getall()[-1]
 
         # Get art image if it exists
         # Else get garage image
