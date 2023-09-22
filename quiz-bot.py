@@ -3,7 +3,7 @@ import random
 import aiohttp
 import os
 import asyncio
-from threading import Timer
+import time
 
 import discord
 from discord.ext import commands
@@ -28,47 +28,6 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     await ctx.send("Pong!")
-
-@bot.command(name="testscore")
-async def test_score(ctx):
-    await ctx.send("[TEST] Start sending messages")
-
-    replies = []
-    while True:
-        tasks = [
-            asyncio.create_task(bot.wait_for(
-                'message',
-                timeout=10.0
-            ))
-        ]
-
-        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-
-        finished: asyncio.Task = list(done)[0]
-
-        for task in pending:
-            try:
-                task.cancel()
-            except asyncio.CancelledError:
-                pass
-
-        try:
-            result = finished.result()
-        except asyncio.TimeoutError:
-            return await ctx.send("Timeout!")
-        
-        msg: discord.Message = result
-        replies.append(msg)
-        break
-            
-    embed = discord.Embed(title="TEST")
-    
-    for reply in replies:
-        embed.add_field(name=reply.author.name,
-                        value=reply.content,
-            inline=False)
-
-    await ctx.send(embed=embed)
 
 @bot.command(name="random")
 async def random_tank(ctx):
@@ -108,25 +67,43 @@ async def guess_tank(ctx):
 
     await ctx.send(embed=embed)
     
-    try:
-        guess = await bot.wait_for('message', timeout=10.0)
+    print("Starting quiz!")
 
-        if guess.content in tank['Name']:
-            embed = discord.Embed(title="Guess that Tank!",
-                          description="Score + 1")
-            embed.add_field(name=tank['Name'], 
-                        value=f"{tank['Nation']}\n{tank['Rank']}")
-            embed.add_field(name="Battle Rating",
-                            value=tank['BR'])
-            embed.add_field(name="Class",
-                            value=tank['Type'])
-            return await ctx.send(embed=embed)
-        else:
-            return await ctx.send(embed=wrong_answer(tank))
+    timer = 10
+    guessers = ""
+    while timer > 0:
+        try:
+            guess = await bot.wait_for('message', timeout=1.0)
 
-    except asyncio.TimeoutError:
+            if guess.content in tank['Name']:
+                guessers += guess.author.name + "\n"
+
+        except asyncio.TimeoutError:
+            pass
+
+        time.sleep(1)
+        timer -= 1
+
+    if (guessers == ""):
+        print("Incorrect or no guesses")
         return await ctx.send(embed=wrong_answer(tank))
     
+    print("Correct guesses for " + tank['Name'])
+
+    embed = discord.Embed(title="Guess that Tank!")
+    embed.add_field(name=tank['Name'], 
+                value=f"{tank['Nation']}\n{tank['Rank']}", inline=False)
+    embed.add_field(name="Battle Rating",
+                    value=tank['BR'])
+    embed.add_field(name="Class",
+                    value=tank['Type'])
+        
+    embed.add_field(name="Correct guesses",
+                    value=guessers,
+                    inline=False)
+        
+    await ctx.send(embed=embed)
+
 
 def wrong_answer(tank):
     embed = discord.Embed(title="Guess that Tank!",
