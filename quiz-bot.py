@@ -42,7 +42,7 @@ async def random_tank(ctx):
 
     embed = discord.Embed(title="Random Tank!")
     embed.add_field(name=tank['Name'], 
-                    value=f"{tank['Nation']}\n{tank['Rank']}")
+                    value=f"{tank['Nation']}\n{tank['Rank']}", inline=False)
     embed.add_field(name="Battle Rating",
                     value=tank['BR'])
     embed.add_field(name="Class",
@@ -90,7 +90,7 @@ def wrong_answer(tank):
     embed = discord.Embed(title="Guess that Tank!",
                             description="Time's up!")
     embed.add_field(name=tank['Name'], 
-                value=f"{tank['Nation']}\n{tank['Rank']}")
+                value=f"{tank['Nation']}\n{tank['Rank']}", inline=False)
     embed.add_field(name="Battle Rating",
                     value=tank['BR'])
     embed.add_field(name="Class",
