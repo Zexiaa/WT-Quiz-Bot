@@ -29,6 +29,47 @@ async def on_ready():
 async def ping(ctx):
     await ctx.send("Pong!")
 
+@bot.command(name="testscore")
+async def test_score(ctx):
+    await ctx.send("[TEST] Start sending messages")
+
+    replies = []
+    while True:
+        tasks = [
+            asyncio.create_task(bot.wait_for(
+                'message',
+                timeout=10.0
+            ))
+        ]
+
+        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+
+        finished: asyncio.Task = list(done)[0]
+
+        for task in pending:
+            try:
+                task.cancel()
+            except asyncio.CancelledError:
+                pass
+
+        try:
+            result = finished.result()
+        except asyncio.TimeoutError:
+            return await ctx.send("Timeout!")
+        
+        msg: discord.Message = result
+        replies.append(msg)
+        break
+            
+    embed = discord.Embed(title="TEST")
+    
+    for reply in replies:
+        embed.add_field(name=reply.author.name,
+                        value=reply.content,
+            inline=False)
+
+    await ctx.send(embed=embed)
+
 @bot.command(name="random")
 async def random_tank(ctx):
     
@@ -58,7 +99,6 @@ async def guess_tank(ctx):
     await ctx.typing()
 
     tank = getRandomTank()
-    answer = tank['Name']
 
     async with aiohttp.ClientSession() as session:
         url = tank["Image"]
@@ -81,6 +121,8 @@ async def guess_tank(ctx):
             embed.add_field(name="Class",
                             value=tank['Type'])
             return await ctx.send(embed=embed)
+        else:
+            return await ctx.send(embed=wrong_answer(tank))
 
     except asyncio.TimeoutError:
         return await ctx.send(embed=wrong_answer(tank))
