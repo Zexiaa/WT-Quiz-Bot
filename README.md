@@ -92,6 +92,7 @@ py quiz-bot.py
 
 ## Built Using <a name = "built_using"></a>
 + [discord.py](https://github.com/Rapptz/discord.py) - Discord Wrapper
++ [scrapy](https://github.com/scrapy/scrapy) - Web scraper
 
 ## Authors <a name = "authors"></a>
 + [@Zexiaa](https://github.com/zexiaa) - Idea & Initial work
